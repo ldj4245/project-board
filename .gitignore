@@ -224,5 +224,5 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij+all,windows,macos,visualstudiocode
 
-# Ignore previous compilation data
-previous-compilation-data.bin
+# Ignore Gradle build cache files
+build/tmp/compileJava/previous-compilation-data.bin
