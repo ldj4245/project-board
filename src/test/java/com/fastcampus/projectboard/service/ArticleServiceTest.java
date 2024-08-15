@@ -38,7 +38,7 @@ class ArticleServiceTest {
     void givenNoSearchParameters_whenSearchingArticles_thenReturnsArticlePage(){
         //Given
         Pageable pageable = Pageable.ofSize(20);
-        given(articleRepository.findAll(pageable)).willThrow(Page.empty());
+        given(articleRepository.findAll(pageable)).willReturn(Page.empty());
 
         //when
         Page<ArticleDto> articles = sut.searchArticles(null,null,pageable);
@@ -187,7 +187,7 @@ class ArticleServiceTest {
     private ArticleDto createArticleDto(String title, String content, String hashtag){
         return ArticleDto.of(
                 1L,
-                createUserAccount(),
+                createUserAccountDto(),
                 title,
                 content,
                 hashtag,
