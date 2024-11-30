@@ -42,10 +42,10 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public ArticleWithCommentsDto getArticleWithComments(Long articleId){
-        return articleRepository.findById(articleId)
-                .map(ArticleWithCommentsDto::from)
+    public ArticleWithCommentsDto getArticleWithComments(Long articleId) {
+        return articleRepository.findById(articleId).map(ArticleWithCommentsDto::from)
                 .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다 - articleId: " + articleId));
+
     }
 
     @Transactional(readOnly = true)

@@ -135,7 +135,7 @@ class ArticleControllerTest {
     @Test
     void givenNothing_whenRequestingArticlePage_thenRedirectsToLoginPage() throws Exception{
         //Given
-        long articleId = 1L;
+        Long articleId = 1L;
 
         // When & Then
         mvc.perform(

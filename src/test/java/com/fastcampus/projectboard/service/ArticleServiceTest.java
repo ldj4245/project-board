@@ -117,7 +117,7 @@ class ArticleServiceTest {
         assertThat(dto)
                 .hasFieldOrPropertyWithValue("title",article.getTitle())
                 .hasFieldOrPropertyWithValue("content",article.getContent())
-                .hasFieldOrPropertyWithValue("hashag", article.getHashtag());
+                .hasFieldOrPropertyWithValue("hashtag", article.getHashtag());
         then(articleRepository).should().findById(articleId);
     }
 
@@ -170,7 +170,7 @@ class ArticleServiceTest {
         // Then
         assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("게시글이 없습니다 - articleId: " + articleId);
+                .hasMessage("게시글이 없습니다 - articleId : " + articleId);
         then(articleRepository).should().findById(articleId);
     }
 

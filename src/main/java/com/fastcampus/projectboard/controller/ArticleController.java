@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,12 +47,12 @@ public class ArticleController {
     }
 
     @GetMapping("/{articleId}")
-    public String article(@PathVariable Long articleId, ModelMap map) {
-        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticleWithComments(articleId));
+    public String article(@PathVariable Long articleId, Model model){
 
-        map.addAttribute("article", article);
-        map.addAttribute("articleComments", article.articleCommentResponse());
-        map.addAttribute("totalCount", articleService.getArticleCount());
+        ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticleWithComments(articleId));
+        model.addAttribute("article",article);
+        model.addAttribute("articleComments",article.articleCommentsResponse());
+        model.addAttribute("totalCount",articleService.getArticleCount());
 
         return "articles/detail";
     }
@@ -104,7 +105,6 @@ public class ArticleController {
     public String updateArticle(@PathVariable Long articleId,
                                 @AuthenticationPrincipal BoardPrincipal boardPrincipal,
                                 ArticleRequest articleRequest) {
-        // TODO: 인증 정보를 넣어줘야 한다.
         articleService.updateArticle(articleId, articleRequest.toDto(boardPrincipal.toDto()));
 
         return "redirect:/articles/" + articleId;
