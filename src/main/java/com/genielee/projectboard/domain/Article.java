@@ -24,7 +24,9 @@ public class Article extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter @ManyToOne(optional = false) @JoinColumn(name="userId") private UserAccount userAccount; // 유저 정보 (ID)
+    @Setter @ManyToOne(optional = false)
+    @JoinColumn(name="userId")
+    private UserAccount userAccount; // 유저 정보 (ID)
 
     @Setter @Column(nullable = false) private String title; //제목
     @Setter @Column(nullable = false, length = 10000) private String content; //내용
@@ -50,16 +52,14 @@ public class Article extends AuditingFields {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof Article that)) return false;
-        return id!= null && id.equals(that.getId());
-
-
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Article article)) return false;
+        return Objects.equals(getId(), article.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 }
