@@ -50,16 +50,14 @@ public class Article extends AuditingFields {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof Article that)) return false;
-        return id!= null && id.equals(that.getId());
-
-
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Article article)) return false;
+        return Objects.equals(getId(), article.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id);
+        return Objects.hashCode(getId());
     }
 }
