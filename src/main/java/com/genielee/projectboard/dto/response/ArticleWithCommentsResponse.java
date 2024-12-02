@@ -1,6 +1,8 @@
 package com.genielee.projectboard.dto.response;
 
 import com.genielee.projectboard.dto.ArticleWithCommentsDto;
+import com.genielee.projectboard.dto.HashtagDto;
+import org.springframework.context.annotation.ScopeMetadata;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -11,14 +13,14 @@ public record ArticleWithCommentsResponse(
         Long id,
         String title,
         String content,
-        String hashtag,
+        Set<String> hashtags,
         LocalDateTime createdAt,
         String email,
         String nickname,
         String userId,
         Set<ArticleCommentResponse> articleCommentsResponse
 ) {
-    public static ArticleWithCommentsResponse of(Long id, String title, String content, String hashtag, LocalDateTime createdAt,
+    public static ArticleWithCommentsResponse of(Long id, String title, String content, Set<String> hashtag, LocalDateTime createdAt,
                                                  String email, String nickname, String userId, Set<ArticleCommentResponse> articleCommentResponse){
         return new ArticleWithCommentsResponse(id, title, content, hashtag, createdAt, email, nickname, userId, articleCommentResponse);
     }
@@ -30,11 +32,14 @@ public record ArticleWithCommentsResponse(
             nickname = dto.userAccountDto().userId();
         }
 
+
         return new ArticleWithCommentsResponse(
                 dto.id(),
                 dto.title(),
                 dto.content(),
-                dto.hashtag(),
+                dto.hashtagDtos().stream().map(HashtagDto::hashtagName)
+                        .collect(Collectors.toUnmodifiableSet())
+                ,
                 dto.createdAt(),
                 dto.userAccountDto().email(),
                 nickname,
