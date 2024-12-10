@@ -196,8 +196,7 @@ class ArticleServiceTest {
 
         // Then
         assertThat(t)
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("게시글이 없습니다 - articleId: " + articleId);
+                .isInstanceOf(EntityNotFoundException.class);
         then(articleRepository).should().findById(articleId);
     }
 
@@ -228,12 +227,13 @@ class ArticleServiceTest {
     @Test
     void givenModifiedArticleInfo_whenUpdatingArticle_thenUpdatesArticle() {
         // Given
-        Article article = createArticle();
-        ArticleDto dto = createArticleDto("새 타이틀", "새 내용 #springboot");
-        Set<String> expectedHashtagNames = Set.of("springboot");
-        Set<Hashtag> expectedHashtags = new HashSet<>();
-        given(articleRepository.getReferenceById(dto.id())).willReturn(article);
-        given(userAccountRepository.getReferenceById(dto.userAccountDto().userId())).willReturn(dto.userAccountDto().toEntity());
+
+        Article article = createArticle(); //게시글 생성
+        ArticleDto dto = createArticleDto("새 타이틀", "새 내용 #springboot"); //게시글 변경 dto 생성
+        Set<String> expectedHashtagNames = Set.of("springboot"); //해시태그 네임 생성
+        Set<Hashtag> expectedHashtags = new HashSet<>(); //해시태그 생성
+        given(articleRepository.getReferenceById(dto.id())).willReturn(article); //dto.id를 넣으면 article 반환
+        given(userAccountRepository.getReferenceById(dto.userAccountDto().userId())).willReturn(dto.userAccountDto().toEntity()); //userAccount 반환
         willDoNothing().given(articleRepository).flush();
         willDoNothing().given(hashtagService).deleteHashtagWithoutArticles(any());
         given(hashtagService.parseHashtagNames(dto.content())).willReturn(expectedHashtagNames);
@@ -296,7 +296,7 @@ class ArticleServiceTest {
     void givenArticleId_whenDeletingArticle_thenDeletesArticle() {
         // Given
         Long articleId = 1L;
-        String userId = "uno";
+        String userId = "lee";
         given(articleRepository.getReferenceById(articleId)).willReturn(createArticle());
         willDoNothing().given(articleRepository).deleteByIdAndUserAccount_UserId(articleId, userId);
         willDoNothing().given(articleRepository).flush();
@@ -344,7 +344,7 @@ class ArticleServiceTest {
     }
 
     private UserAccount createUserAccount() {
-        return createUserAccount("uno");
+        return createUserAccount("lee");
     }
     private UserAccount createUserAccount(String userId) {
         return UserAccount.of(

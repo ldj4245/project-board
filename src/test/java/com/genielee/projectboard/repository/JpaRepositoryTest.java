@@ -132,23 +132,23 @@ class JpaRepositoryTest {
     @Test
     void givenHashtagNamesAndPageable_whenQueryingArticles_thenReturnsArticlePage() {
         // Given
-        List<String> hashtagNames = List.of("blue", "crimson", "fsucia");
-        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Order.desc("hashtags.hashtagName"), Sort.Order.asc("title")));
+        List<String> hashtagNames = List.of("blue", "crimson", "fuscia");
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(
+                Sort.Order.desc("hashtags.hashtagName"),
+                Sort.Order.asc("title")
+        ));
 
-
-        // when
+        // When
         Page<Article> articlePage = articleRepository.findByHashtagNames(hashtagNames, pageable);
-
 
         // Then
         assertThat(articlePage.getContent()).hasSize(pageable.getPageSize());
         assertThat(articlePage.getContent().get(0).getTitle()).isEqualTo("Fusce posuere felis sed lacus.");
         assertThat(articlePage.getContent().get(0).getHashtags())
                 .extracting("hashtagName", String.class)
-                .containsExactly("fusia");
+                .containsExactly("fuscia");
         assertThat(articlePage.getTotalElements()).isEqualTo(17);
         assertThat(articlePage.getTotalPages()).isEqualTo(4);
-
     }
     @EnableJpaAuditing
     @TestConfiguration
