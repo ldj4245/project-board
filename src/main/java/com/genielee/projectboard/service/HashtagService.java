@@ -5,12 +5,14 @@ import com.genielee.projectboard.domain.Hashtag;
 import com.genielee.projectboard.repository.HashtagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class HashtagService {
@@ -35,9 +37,9 @@ public class HashtagService {
         return Set.copyOf(result); //불변으로 만들어주는 기능
     }
 
-    public Set<Hashtag> findHashtagsByNames(Set<String> hashtagNames){
+    @Transactional(readOnly = true)
+    public Set<Hashtag> findHashtagsByNames(Set<String> hashtagNames) {
         return new HashSet<>(hashtagRepository.findByHashtagNameIn(hashtagNames));
-        //new HashSet덕분에 return값이 List지만 set으로 반환할 수 있다.
     }
 
 
