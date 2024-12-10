@@ -341,9 +341,9 @@ class ArticleControllerTest {
                 "content",
                 Set.of(HashtagDto.of("java")),
                 LocalDateTime.now(),
-                "uno",
+                "Lee",
                 LocalDateTime.now(),
-                "uno"
+                "Lee"
         );
     }
 
