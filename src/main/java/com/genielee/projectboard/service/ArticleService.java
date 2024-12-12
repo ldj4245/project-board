@@ -114,6 +114,7 @@ public class ArticleService {
         articleRepository.deleteByIdAndUserAccount_UserId(articleId,userId);
         articleRepository.flush();
 
+
         hashtagIds.forEach(hashtagService::deleteHashtagWithoutArticles);
 
 
