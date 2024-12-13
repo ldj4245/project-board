@@ -69,6 +69,8 @@ public record ArticleWithCommentsResponse(
 
 
         return map.values().stream()
+                //최상위 댓글만 뿌려주는 이유는
+                // 위에서 이미 대댓글을 가져와서 parent 댓글에 추가해줘서 마지막으로 최 상단에 있는 루트만 내림차순으로 정렬해줌
                 .filter(comment -> !comment.hasParentComment())
                 .collect(Collectors.toCollection(() ->
                         new TreeSet<>(Comparator
