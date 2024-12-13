@@ -23,6 +23,8 @@ public record ArticleCommentResponse(
         return ArticleCommentResponse.of(id,content,createdAt,email,nickname,userId,null);
     }
 
+    //여기서 미리 트리셋 구조를 만들어 놓음
+    //이유는 articlewithCommentResponse에서 organize를 참고하면 알 수 있음
     public static ArticleCommentResponse of(Long id, String content, LocalDateTime createdAt, String email, String nickname, String userId, Long parentCommentId){
         Comparator<ArticleCommentResponse> childCommentComparator = Comparator
                 .comparing(ArticleCommentResponse::createdAt)
