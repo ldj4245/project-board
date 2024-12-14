@@ -17,6 +17,9 @@ public class ArticleCommentController {
 
     private final ArticleCommentService articleCommentService;
 
+
+    //th:name = content
+    //articleCommentRequest 내부 string content와 바인딩
     @PostMapping("/new")
     public String postNewArticleComment(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
