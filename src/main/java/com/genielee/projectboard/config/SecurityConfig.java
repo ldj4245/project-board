@@ -37,13 +37,8 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .mvcMatchers("/api/**").permitAll()
-                        .mvcMatchers(
-                                HttpMethod.GET,
-                                "/",
-                                "/articles",
-                                "/articles/search-hashtag"
-                        ).permitAll()
+                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/articles", "/articles/search-hashtag").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(withDefaults())
@@ -52,7 +47,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService))
                 )
-                .csrf(csrf -> csrf.ignoringAntMatchers("/api/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .build();
     }
 
