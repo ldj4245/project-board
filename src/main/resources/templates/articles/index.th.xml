@@ -35,6 +35,12 @@
              searchType=${param.searchType},
             searchValue=${param.searchValue}
         )}"/>
+                <attr sel="th.view-count/a" th:text="'조회수'" th:href="@{/articles(
+            page=${articles.number},
+            sort='viewCount' + (*{sort.getOrderFor('viewCount')} != null ? (*{sort.getOrderFor('viewCount').direction.name} != 'DESC' ? ',desc' : '') : ''),
+             searchType=${param.searchType},
+            searchValue=${param.searchValue}
+        )}"/>
                 <attr sel="th.created-at/a" th:text="'작성일'" th:href="@{/articles(
             page=${articles.number},
             sort='createdAt' + (*{sort.getOrderFor('createdAt')} != null ? (*{sort.getOrderFor('createdAt').direction.name} != 'DESC' ? ',desc' : '') : ''),
@@ -51,6 +57,7 @@
                               th:href="@{/articles(searchType=${searchTypeHashtag},searchValue=${hashtag})}" />
                     </attr>
                     <attr sel="td.user-id" th:text="${article.nickname}" />
+                    <attr sel="td.view-count" th:text="${article.viewCount}" />
                     <attr sel="td.created-at/time" th:datetime="${article.createdAt}" th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd')}" />
                 </attr>
             </attr>

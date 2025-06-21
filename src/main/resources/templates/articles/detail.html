@@ -1,148 +1,283 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <meta name="author" content="Lee Kim">
-  <title>게시글 페이지</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="Lee Kim" />
+    <title>게시글 페이지</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-  <link href="/css/articles/article-content.css" rel="stylesheet">
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+    <link href="/css/articles/article-content.css" rel="stylesheet" />
+  </head>
 
-<body>
+  <body>
+    <header id="header">
+      헤더 삽입부
+      <hr />
+    </header>
 
-<header id="header">
-  헤더 삽입부
-  <hr>
-</header>
+    <main id="article-main" class="container">
+      <header id="article-header" class="py-5 text-center">
+        <h1>첫번째 글</h1>
+        <div class="article-stats mt-3">
+          <span class="badge bg-secondary me-2"
+            >조회수 <span id="view-count">0</span></span
+          >
+          <span class="badge bg-danger me-2"
+            >좋아요 <span id="like-count">0</span></span
+          >
+        </div>
+      </header>
 
-<main id="article-main" class="container">
-  <header id="article-header" class="py-5 text-center">
-    <h1>첫번째 글</h1>
-  </header>
+      <div class="row g-5">
+        <section class="col-md-3 col-lg-4 order-md-last">
+          <aside>
+            <p><span id="nickname">Lee</span></p>
+            <p><a id="email" href="mailto:djkehh@gmail.com">Lee@mail.com</a></p>
+            <p>
+              <time id="created-at" datetime="2022-01-01T00:00:00"
+                >2022-01-01</time
+              >
+            </p>
+            <p>
+              <span id="hashtag" class="badge text-bg-secondary mx-1"
+                ><a class="text-reset">#java</a></span
+              >
+            </p>
+          </aside>
+        </section>
 
-  <div class="row g-5">
-    <section class="col-md-3 col-lg-4 order-md-last">
-      <aside>
-        <p><span id="nickname">Lee</span></p>
-        <p><a id="email" href="mailto:djkehh@gmail.com">Lee@mail.com</a></p>
-        <p><time id="created-at" datetime="2022-01-01T00:00:00">2022-01-01</time></p>
-        <p><span id="hashtag" class="badge text-bg-secondary mx-1"><a class="text-reset">#java</a></span></p>
-      </aside>
-    </section>
-
-    <article id="article-content" class="col-md-9 col-lg-8">
-      <pre>본문</pre>
-    </article>
-  </div>
-
-  <div class="row g-5" id="article-buttons">
-    <form id="delete-article-form">
-      <div class="pb-5 d-grid gap-2 d-md-block">
-        <a class="btn btn-success me-md-2" role="button" id="update-article">수정</a>
-        <button class="btn btn-danger me-md-2" type="submit">삭제</button>
+        <article id="article-content" class="col-md-9 col-lg-8">
+          <pre>본문</pre>
+        </article>
       </div>
-    </form>
-  </div>
 
-  <div class="row g-5">
-    <section>
-      <form class="row g-3 comment-form">
-        <input type="hidden" class="article-id">
-        <div class="col-md-9 col-lg-8">
-          <label for="comment-textbox" hidden>댓글</label>
-          <textarea class="form-control comment-textbox" id="comment-textbox" placeholder="댓글 쓰기.." rows="3" required></textarea>
+      <div class="row g-5" id="article-actions">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- 좋아요/북마크 버튼 -->
+            <div class="action-buttons">
+              <button
+                class="btn btn-outline-danger me-2"
+                id="like-btn"
+                data-article-id="1"
+              >
+                ❤️ <span class="like-count">0</span>
+              </button>
+              <button
+                class="btn btn-outline-warning me-2"
+                id="bookmark-btn"
+                data-article-id="1"
+              >
+                🔖 북마크
+              </button>
+            </div>
+            <!-- 수정/삭제 버튼 -->
+            <div class="owner-buttons">
+              <form id="delete-article-form" class="d-inline">
+                <a
+                  class="btn btn-success me-md-2"
+                  role="button"
+                  id="update-article"
+                  >수정</a
+                >
+                <button class="btn btn-danger me-md-2" type="submit">
+                  삭제
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-md-3 col-lg-4">
-          <label for="comment-submit" hidden>댓글 쓰기</label>
-          <button class="btn btn-primary" id="comment-submit" type="submit">쓰기</button>
-        </div>
-      </form>
+      </div>
 
-      <ul id="article-comments" class="row col-md-10 col-lg-8 pt-3">
-        <li class="parent-comment">
-          <form class="comment-delete-form">
-            <input type="hidden" class="article-id">
-            <div class="row">
-              <div class="col-md-10 col-lg-9">
-                <strong>Lee</strong>
-                <small><time>2022-01-01</time>
-                </small>
-                <p class="mb-1">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
-                  Lorem ipsum dolor sit amet
-                </p>
-              </div>
-              <div class="col-2 mb-3 align-self-center">
-                <button type="submit" class="btn btn-outline-danger">삭제</button>
-              </div>
+      <div class="row g-5">
+        <section>
+          <form class="row g-3 comment-form">
+            <input type="hidden" class="article-id" />
+            <div class="col-md-9 col-lg-8">
+              <label for="comment-textbox" hidden>댓글</label>
+              <textarea
+                class="form-control comment-textbox"
+                id="comment-textbox"
+                placeholder="댓글 쓰기.."
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="col-md-3 col-lg-4">
+              <label for="comment-submit" hidden>댓글 쓰기</label>
+              <button class="btn btn-primary" id="comment-submit" type="submit">
+                쓰기
+              </button>
             </div>
           </form>
 
-          <ul class="row me-0">
-            <li class="child-comment">
+          <ul id="article-comments" class="row col-md-10 col-lg-8 pt-3">
+            <li class="parent-comment">
               <form class="comment-delete-form">
-                <input type="hidden" class="article-id">
+                <input type="hidden" class="article-id" />
                 <div class="row">
                   <div class="col-md-10 col-lg-9">
                     <strong>Lee</strong>
-                    <small><time>2024-01-01</time>
-                    </small>
+                    <small><time>2022-01-01</time> </small>
                     <p class="mb-1">
-                      Hello my name is Lee.<br>
-                      Lee lee park hyo shin
+                      Lorem ipsum dolor sit amet, consectetur adipiscing
+                      elit.<br />
+                      Lorem ipsum dolor sit amet
                     </p>
                   </div>
                   <div class="col-2 mb-3 align-self-center">
-                    <button type="submit" class="btn btn-outline-danger">삭제</button>
+                    <button type="submit" class="btn btn-outline-danger">
+                      삭제
+                    </button>
                   </div>
                 </div>
               </form>
+
+              <ul class="row me-0">
+                <li class="child-comment">
+                  <form class="comment-delete-form">
+                    <input type="hidden" class="article-id" />
+                    <div class="row">
+                      <div class="col-md-10 col-lg-9">
+                        <strong>Lee</strong>
+                        <small><time>2024-01-01</time> </small>
+                        <p class="mb-1">
+                          Hello my name is Lee.<br />
+                          Lee lee park hyo shin
+                        </p>
+                      </div>
+                      <div class="col-2 mb-3 align-self-center">
+                        <button type="submit" class="btn btn-outline-danger">
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </li>
+              </ul>
+
+              <div class="row">
+                <details class="col-md-10 col-lg-9 mb-4">
+                  <summary>댓글 달기</summary>
+                  <form class="comment-form">
+                    <input type="hidden" class="article-id" />
+                    <input type="hidden" class="parent-comment-id" />
+                    <textarea
+                      class="form-control comment-textbox"
+                      placeholder="댓글 쓰기.."
+                      rows="2"
+                      required
+                    ></textarea>
+                    <button
+                      class="form-control btn btn-primary mt-2"
+                      type="submit"
+                    >
+                      쓰기
+                    </button>
+                  </form>
+                </details>
+              </div>
             </li>
           </ul>
+        </section>
+      </div>
 
-          <div class="row">
-            <details class="col-md-10 col-lg-9 mb-4">
-              <summary>댓글 달기</summary>
-              <form class="comment-form">
-                <input type="hidden" class="article-id">
-                <input type="hidden" class="parent-comment-id">
-                <textarea class="form-control comment-textbox" placeholder="댓글 쓰기.." rows="2" required></textarea>
-                <button class="form-control btn btn-primary mt-2" type="submit">쓰기</button>
-              </form>
-            </details>
-          </div>
-        </li>
-      </ul>
+      <div class="row g-5">
+        <nav id="pagination" aria-label="Page navigation">
+          <ul class="pagination">
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo; prev</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">next &raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </main>
 
-    </section>
-  </div>
+    <footer id="footer">
+      <hr />
+      푸터 삽입부
+    </footer>
 
-  <div class="row g-5">
-    <nav id="pagination" aria-label="Page navigation">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo; prev</span>
-          </a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">next &raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</main>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+      crossorigin="anonymous"
+    ></script>
 
-<footer id="footer">
-  <hr>
-  푸터 삽입부
-</footer>
+    <script>
+      // 좋아요 버튼 이벤트
+      document
+        .getElementById("like-btn")
+        ?.addEventListener("click", async function () {
+          const articleId = this.dataset.articleId;
+          try {
+            const response = await fetch(`/api/articles/${articleId}/like`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+            });
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
-</body>
+            if (response.ok) {
+              const result = await response.json();
+              this.querySelector(".like-count").textContent = result.likeCount;
+              this.classList.toggle("btn-danger", result.isLiked);
+              this.classList.toggle("btn-outline-danger", !result.isLiked);
+              document.getElementById("like-count").textContent =
+                result.likeCount;
+            } else if (response.status === 401) {
+              alert("로그인이 필요합니다.");
+              window.location.href = "/login";
+            }
+          } catch (error) {
+            console.error("좋아요 요청 실패:", error);
+          }
+        });
+
+      // 북마크 버튼 이벤트
+      document
+        .getElementById("bookmark-btn")
+        ?.addEventListener("click", async function () {
+          const articleId = this.dataset.articleId;
+          try {
+            const response = await fetch(
+              `/api/articles/${articleId}/bookmark`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              this.classList.toggle("btn-warning", result.isBookmarked);
+              this.classList.toggle(
+                "btn-outline-warning",
+                !result.isBookmarked
+              );
+              this.innerHTML = result.isBookmarked
+                ? "🔖 북마크됨"
+                : "🔖 북마크";
+            } else if (response.status === 401) {
+              alert("로그인이 필요합니다.");
+              window.location.href = "/login";
+            }
+          } catch (error) {
+            console.error("북마크 요청 실패:", error);
+          }
+        });
+    </script>
+  </body>
 </html>

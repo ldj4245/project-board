@@ -5,6 +5,8 @@
 
     <attr sel="#article-main" th:object="${article}">
         <attr sel="#article-header/h1" th:text="*{title}" />
+        <attr sel="#view-count" th:text="*{viewCount}" />
+        <attr sel="#like-count" th:text="${likeCount}" />
         <attr sel="#nickname" th:text="*{nickname}" />
         <attr sel="#email" th:text="*{email}" />
         <attr sel="#created-at" th:datetime="*{createdAt}" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd HH:mm:ss')}" />
@@ -17,9 +19,21 @@
 
         <attr sel="#article-content/pre" th:text="*{content}" />
 
-        <attr sel="#article-buttons" th:if="${#authorization.expression('isAuthenticated()')} and *{userId} == ${#authentication.name}">
-            <attr sel="#delete-article-form" th:action="'/articles/' + *{id} + '/delete'" th:method="post">
-                <attr sel="#update-article" th:href="'/articles/' + *{id} + '/form'" />
+        <attr sel="#article-actions">
+            <attr sel="#like-btn" 
+                  th:data-article-id="*{id}"
+                  th:classappend="${isLiked} ? ' btn-danger' : ' btn-outline-danger'">
+                <attr sel=".like-count" th:text="${likeCount}" />
+            </attr>
+            <attr sel="#bookmark-btn" 
+                  th:data-article-id="*{id}"
+                  th:classappend="${isBookmarked} ? ' btn-warning' : ' btn-outline-warning'"
+                  th:text="${isBookmarked} ? '🔖 북마크됨' : '🔖 북마크'" />
+            
+            <attr sel=".owner-buttons" th:if="${#authorization.expression('isAuthenticated()')} and *{userId} == ${#authentication.name}">
+                <attr sel="#delete-article-form" th:action="'/articles/' + *{id} + '/delete'" th:method="post">
+                    <attr sel="#update-article" th:href="'/articles/' + *{id} + '/form'" />
+                </attr>
             </attr>
         </attr>
 
@@ -36,7 +50,7 @@
                     <attr sel="div/p" th:text="${articleComment.content}" />
                     <attr sel="button" th:if="${#authorization.expression('isAuthenticated()')} and ${articleComment.userId} == ${#authentication.name}" />
                 </attr>
-                <attr sel="ul" th:if="${!articleComment.childComments.isEmpty}" th:remove="all-but-first">
+                <attr sel="ul" th:if="${articleComment.childComments.size() > 0}" th:remove="all-but-first">
                     <attr sel=".child-comment[0]" th:each="childComment : ${articleComment.childComments}">
                         <attr sel=".comment-delete-form" th:action="'/comments/' + ${childComment.id} + '/delete'" th:method="post">
                             <attr sel="div/strong" th:text="${childComment.nickname}" />

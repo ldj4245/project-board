@@ -19,11 +19,12 @@ public record ArticleWithCommentsResponse(
         String email,
         String nickname,
         String userId,
+        Long viewCount,
         Set<ArticleCommentResponse> articleCommentsResponse
 ) {
     public static ArticleWithCommentsResponse of(Long id, String title, String content, Set<String> hashtag, LocalDateTime createdAt,
-                                                 String email, String nickname, String userId, Set<ArticleCommentResponse> articleCommentResponse){
-        return new ArticleWithCommentsResponse(id, title, content, hashtag, createdAt, email, nickname, userId, articleCommentResponse);
+                                                 String email, String nickname, String userId, Long viewCount, Set<ArticleCommentResponse> articleCommentResponse){
+        return new ArticleWithCommentsResponse(id, title, content, hashtag, createdAt, email, nickname, userId, viewCount, articleCommentResponse);
     }
 
     public static ArticleWithCommentsResponse from(ArticleWithCommentsDto dto){
@@ -45,6 +46,7 @@ public record ArticleWithCommentsResponse(
                 dto.userAccountDto().email(),
                 nickname,
                 dto.userAccountDto().userId(),
+                dto.viewCount(),
                 organizeChildComments(dto.articleCommentDtos())
         );
     }

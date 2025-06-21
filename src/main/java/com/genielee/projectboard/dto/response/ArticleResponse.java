@@ -14,10 +14,11 @@ public record ArticleResponse(
         Set<String> hashtags,
         LocalDateTime createdAt,
         String email,
-        String nickname) {
+        String nickname,
+        Long viewCount) {
 
-    public static ArticleResponse of(Long id, String title, String content, Set<String> hashtag, LocalDateTime createdAt, String email, String nickname) {
-        return new ArticleResponse(id, title, content, hashtag, createdAt, email, nickname);
+    public static ArticleResponse of(Long id, String title, String content, Set<String> hashtag, LocalDateTime createdAt, String email, String nickname, Long viewCount) {
+        return new ArticleResponse(id, title, content, hashtag, createdAt, email, nickname, viewCount);
     }
 
     public static ArticleResponse from(ArticleDto dto) {
@@ -35,7 +36,8 @@ public record ArticleResponse(
                         .collect(Collectors.toUnmodifiableSet()),
                 dto.createdAt(),
                 dto.userAccountDto().email(),
-                nickname
+                nickname,
+                dto.viewCount()
         );
     }
 
