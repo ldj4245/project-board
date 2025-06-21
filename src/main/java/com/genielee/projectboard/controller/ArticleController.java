@@ -7,7 +7,11 @@ import com.genielee.projectboard.dto.response.ArticleResponse;
 import com.genielee.projectboard.dto.response.ArticleWithCommentsResponse;
 import com.genielee.projectboard.dto.security.BoardPrincipal;
 import com.genielee.projectboard.service.ArticleService;
+import com.genielee.projectboard.service.ArticleLikeService;
+import com.genielee.projectboard.service.ArticleBookmarkService;
+import com.genielee.projectboard.service.ArticleViewService;
 import com.genielee.projectboard.service.PaginationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +31,9 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final ArticleLikeService articleLikeService;
+    private final ArticleBookmarkService articleBookmarkService;
+    private final ArticleViewService articleViewService;
     private final PaginationService paginationService;
 
     @GetMapping
@@ -49,13 +56,30 @@ public class ArticleController {
     }
 
     @GetMapping("/{articleId}")
-    public String article(@PathVariable Long articleId, Model model){
+    public String article(@PathVariable Long articleId, 
+                         HttpServletRequest request,
+                         @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+                         Model model){
+
+        // 조회수 증가
+        String viewerIp = getClientIp(request);
+        String userId = boardPrincipal != null ? boardPrincipal.getUsername() : null;
+        articleViewService.incrementViewCount(articleId, viewerIp, userId);
 
         ArticleWithCommentsResponse article = ArticleWithCommentsResponse.from(articleService.getArticleWithComments(articleId));
+        
+        // 좋아요/북마크 상태 확인
+        boolean isLiked = userId != null && articleLikeService.isLikedByUser(articleId, userId);
+        boolean isBookmarked = userId != null && articleBookmarkService.isBookmarkedByUser(articleId, userId);
+        long likeCount = articleLikeService.getLikeCount(articleId);
+        
         model.addAttribute("article",article);
         model.addAttribute("articleComments",article.articleCommentsResponse());
         model.addAttribute("totalCount",articleService.getArticleCount());
         model.addAttribute("searchTypeHashtag", SearchType.HASHTAG);
+        model.addAttribute("isLiked", isLiked);
+        model.addAttribute("isBookmarked", isBookmarked);
+        model.addAttribute("likeCount", likeCount);
 
         return "articles/detail";
     }
@@ -119,6 +143,20 @@ public class ArticleController {
         articleService.deleteArticle(articleId,boardPrincipal.getUsername());
 
         return "redirect:/articles";
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+        
+        return request.getRemoteAddr();
     }
 
 }

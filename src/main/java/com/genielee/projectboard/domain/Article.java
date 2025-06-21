@@ -1,5 +1,6 @@
 package com.genielee.projectboard.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,6 +32,8 @@ public class Article extends AuditingFields {
 
     @Setter @Column(nullable = false) private String title; //제목
     @Setter @Column(nullable = false, length = 10000) private String content; //내용
+
+    @Setter @Getter(AccessLevel.NONE) @Column(columnDefinition = "BIGINT DEFAULT 0") private Long viewCount = 0L; // 조회수
 
     @ToString.Exclude
     @JoinTable(
@@ -70,6 +73,17 @@ public class Article extends AuditingFields {
 
     public void clearHashtags(){
         this.getHashtags().clear();
+    }
+
+    public void incrementViewCount() {
+        if (this.viewCount == null) {
+            this.viewCount = 0L;
+        }
+        this.viewCount++;
+    }
+    
+    public Long getViewCount() {
+        return this.viewCount != null ? this.viewCount : 0L;
     }
 
     @Override
