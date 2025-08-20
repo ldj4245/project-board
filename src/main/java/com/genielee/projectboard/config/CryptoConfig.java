@@ -3,13 +3,18 @@ package com.genielee.projectboard.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.codec.ClientCodecConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.concurrent.Executor;
 
 /**
  * 암호화폐 관련 설정 클래스
  */
 @Configuration
+@EnableAsync
 public class CryptoConfig {
     
     /**
@@ -22,6 +27,20 @@ public class CryptoConfig {
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(this::configureCodecs)
                         .build());
+    }
+    
+    /**
+     * 비동기 작업을 위한 스레드 풀 설정
+     */
+    @Bean(name = "cryptoTaskExecutor")
+    public Executor cryptoTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("crypto-");
+        executor.initialize();
+        return executor;
     }
     
     /**
