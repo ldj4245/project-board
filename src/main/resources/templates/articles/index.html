@@ -43,6 +43,7 @@
                         <option>id</option>
                         <option>닉네임</option>
                         <option>해시태그</option>
+                        <option>코인명</option>
                       </select>
                     </div>
                     <div class="col-lg-8 col-md-6 col-sm-12 p-0">
@@ -78,6 +79,46 @@
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+        
+        <!-- 암호화폐 카테고리 필터 -->
+        <div class="card card-margin mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+          <div class="card-body p-3">
+            <div class="row align-items-center">
+              <div class="col-md-2">
+                <h6 class="text-white mb-0">🪙 코인 카테고리</h6>
+              </div>
+              <div class="col-md-10">
+                <div class="d-flex flex-wrap gap-2" id="crypto-categories">
+                  <span class="badge bg-light text-dark">로딩 중...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 실시간 코인 가격 차트 영역 -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">📈 주요 암호화폐 가격</h6>
+              <button class="btn btn-sm btn-outline-primary" onclick="refreshCryptoPrices()">
+                🔄 새로고침
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="row" id="crypto-price-cards">
+                <div class="col-12 text-center">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-2 text-muted">코인 가격 정보를 불러오는 중...</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -153,5 +194,146 @@
       integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
       crossorigin="anonymous"
     ></script>
+    
+    <script>
+      // 암호화폐 카테고리 로드
+      async function loadCryptoCategories() {
+        try {
+          const response = await fetch('/api/crypto/categories');
+          const categories = await response.json();
+          
+          const categoriesElement = document.getElementById('crypto-categories');
+          if (categories && categories.length > 0) {
+            categoriesElement.innerHTML = categories.map(category => 
+              `<span class="badge bg-light text-dark me-1 mb-1" style="cursor: pointer; border: 1px solid ${category.color || '#ddd'};" 
+                     onclick="filterByCategory('${category.name}')" 
+                     title="${category.description}">
+                 ${category.name} (${category.cryptocurrencyCount || 0})
+               </span>`
+            ).join('');
+          } else {
+            categoriesElement.innerHTML = '<span class="badge bg-light text-dark">카테고리 없음</span>';
+          }
+        } catch (error) {
+          console.error('Error loading categories:', error);
+          document.getElementById('crypto-categories').innerHTML = 
+            '<span class="badge bg-danger text-white">카테고리 로딩 실패</span>';
+        }
+      }
+      
+      // 암호화폐 가격 카드 로드
+      async function loadCryptoPriceCards() {
+        try {
+          const response = await fetch('/api/crypto/prices/top');
+          const cryptos = await response.json();
+          
+          const priceCardsElement = document.getElementById('crypto-price-cards');
+          if (cryptos && cryptos.length > 0) {
+            // 상위 8개 코인 표시
+            const topCryptos = cryptos.slice(0, 8);
+            
+            priceCardsElement.innerHTML = topCryptos.map(crypto => {
+              const changeClass = crypto.priceChangePercentage24h >= 0 ? 'text-success' : 'text-danger';
+              const changeSymbol = crypto.priceChangePercentage24h >= 0 ? '▲' : '▼';
+              const formattedPrice = crypto.currentPriceKrw ? 
+                Number(crypto.currentPriceKrw).toLocaleString('ko-KR') + '원' :
+                '$' + Number(crypto.currentPrice || 0).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                });
+              
+              return `
+                <div class="col-md-3 col-sm-6 mb-3">
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                      <h6 class="card-title fw-bold">${crypto.symbol}</h6>
+                      <p class="card-text small text-muted mb-1">${crypto.name}</p>
+                      <p class="card-text fw-bold">${formattedPrice}</p>
+                      <p class="card-text ${changeClass} small">
+                        ${changeSymbol} ${Math.abs(crypto.priceChangePercentage24h || 0).toFixed(2)}%
+                      </p>
+                      ${crypto.rank ? `<span class="badge bg-secondary small">#${crypto.rank}</span>` : ''}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          } else {
+            priceCardsElement.innerHTML = 
+              '<div class="col-12 text-center"><p class="text-muted">코인 가격 정보를 불러올 수 없습니다</p></div>';
+          }
+        } catch (error) {
+          console.error('Error loading crypto prices:', error);
+          document.getElementById('crypto-price-cards').innerHTML = 
+            '<div class="col-12 text-center"><p class="text-danger">가격 정보 로딩 실패</p></div>';
+        }
+      }
+      
+      // 카테고리별 필터링 (향후 구현)
+      function filterByCategory(categoryName) {
+        console.log('Filter by category:', categoryName);
+        // TODO: 카테고리별 게시글 필터링 구현
+        alert(`"${categoryName}" 카테고리 필터링 기능은 곧 구현됩니다.`);
+      }
+      
+      // 코인 가격 새로고침
+      function refreshCryptoPrices() {
+        loadCryptoPriceCards();
+      }
+      
+      // 검색 폼에 코인명 검색 기능 추가
+      function setupCoinSearch() {
+        const searchForm = document.getElementById('search-form');
+        const searchType = document.getElementById('search-type');
+        const searchValue = document.getElementById('search-value');
+        
+        if (searchForm) {
+          searchForm.addEventListener('submit', function(e) {
+            if (searchType.value === '코인명') {
+              e.preventDefault();
+              searchCrypto(searchValue.value);
+            }
+          });
+        }
+      }
+      
+      // 암호화폐 검색 기능
+      async function searchCrypto(keyword) {
+        if (!keyword.trim()) {
+          alert('검색어를 입력해주세요.');
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/crypto/prices/search?keyword=${encodeURIComponent(keyword)}`);
+          const result = await response.json();
+          
+          if (result.content && result.content.length > 0) {
+            const cryptoList = result.content.map(crypto => 
+              `- ${crypto.name} (${crypto.symbol}): ${crypto.currentPriceKrw ? 
+                Number(crypto.currentPriceKrw).toLocaleString('ko-KR') + '원' : 
+                '$' + Number(crypto.currentPrice || 0).toFixed(2)}`
+            ).join('\n');
+            
+            alert(`검색 결과:\n${cryptoList}`);
+          } else {
+            alert('검색 결과가 없습니다.');
+          }
+        } catch (error) {
+          console.error('Error searching crypto:', error);
+          alert('검색 중 오류가 발생했습니다.');
+        }
+      }
+      
+      // 페이지 로드 시 초기화
+      document.addEventListener('DOMContentLoaded', function() {
+        loadCryptoCategories();
+        loadCryptoPriceCards();
+        setupCoinSearch();
+        
+        // 3분마다 가격 정보 자동 업데이트
+        setInterval(loadCryptoPriceCards, 180000);
+      });
+    </script>
   </body>
 </html>

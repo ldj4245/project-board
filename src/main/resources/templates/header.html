@@ -3,8 +3,69 @@
   <head>
     <meta charset="UTF-8" />
     <title>Title</title>
+    <style>
+      /* 코인 가격 위젯 스타일 */
+      .crypto-widget {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        color: white;
+        font-size: 0.85rem;
+      }
+      
+      .crypto-prices {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .crypto-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        min-width: fit-content;
+      }
+      
+      .crypto-symbol {
+        font-weight: bold;
+        font-size: 0.9rem;
+      }
+      
+      .crypto-price {
+        font-size: 0.8rem;
+      }
+      
+      .crypto-change {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+      
+      .crypto-change.positive {
+        color: #4ade80;
+      }
+      
+      .crypto-change.negative {
+        color: #f87171;
+      }
+      
+      .crypto-loading {
+        color: #d1d5db;
+      }
+    </style>
   </head>
   <body>
+    <!-- 코인 가격 위젯 -->
+    <div class="crypto-widget">
+      <div class="container">
+        <div class="crypto-prices" id="crypto-prices">
+          <div class="crypto-loading">🪙 코인 가격 로딩 중...</div>
+        </div>
+      </div>
+    </div>
+    
     <header class="p-3 bg-dark text-white">
       <div class="container">
         <div
@@ -15,17 +76,22 @@
           >
             <li>
               <a id="home" href="#" class="nav-link px-2 text-secondary"
-                >Home</a
+                >🏠 홈</a
               >
             </li>
             <li>
               <a id="hashtag" href="#" class="nav-link px-2 text-secondary"
-                >Hashtags</a
+                >#️⃣ 해시태그</a
               >
             </li>
             <li>
               <a id="bookmarks" href="#" class="nav-link px-2 text-secondary"
                 >🔖 북마크</a
+              >
+            </li>
+            <li>
+              <a id="crypto-categories" href="/crypto-center" class="nav-link px-2 text-secondary"
+                >💰 코인센터</a
               >
             </li>
           </ul>
@@ -56,5 +122,60 @@
         </div>
       </div>
     </header>
+    
+    <script>
+      // 코인 가격 정보를 로드하는 함수
+      async function loadCryptoPrices() {
+        try {
+          const response = await fetch('/api/crypto/prices/top');
+          if (!response.ok) {
+            throw new Error('Failed to fetch crypto prices');
+          }
+          
+          const cryptos = await response.json();
+          const cryptoPricesElement = document.getElementById('crypto-prices');
+          
+          if (cryptos && cryptos.length > 0) {
+            // 상위 6개 코인만 표시
+            const topCryptos = cryptos.slice(0, 6);
+            
+            cryptoPricesElement.innerHTML = topCryptos.map(crypto => {
+              const changeClass = crypto.priceChangePercentage24h >= 0 ? 'positive' : 'negative';
+              const changeSymbol = crypto.priceChangePercentage24h >= 0 ? '▲' : '▼';
+              const formattedPrice = crypto.currentPriceKrw ? 
+                Number(crypto.currentPriceKrw).toLocaleString('ko-KR') + '원' :
+                '$' + Number(crypto.currentPrice || 0).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                });
+              
+              return `
+                <div class="crypto-item">
+                  <span class="crypto-symbol">${crypto.symbol}</span>
+                  <span class="crypto-price">${formattedPrice}</span>
+                  <span class="crypto-change ${changeClass}">
+                    ${changeSymbol} ${Math.abs(crypto.priceChangePercentage24h || 0).toFixed(2)}%
+                  </span>
+                </div>
+              `;
+            }).join('');
+          } else {
+            cryptoPricesElement.innerHTML = '<div class="crypto-loading">📊 코인 데이터를 불러올 수 없습니다</div>';
+          }
+        } catch (error) {
+          console.error('Error loading crypto prices:', error);
+          document.getElementById('crypto-prices').innerHTML = 
+            '<div class="crypto-loading">❌ 코인 가격 로딩 실패</div>';
+        }
+      }
+      
+      // 페이지 로드 시 코인 가격 정보 로드
+      document.addEventListener('DOMContentLoaded', () => {
+        loadCryptoPrices();
+        
+        // 1분마다 가격 정보 업데이트
+        setInterval(loadCryptoPrices, 60000);
+      });
+    </script>
   </body>
 </html>
