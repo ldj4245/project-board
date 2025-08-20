@@ -136,7 +136,8 @@ class ArticleWithCommentsResponseTest {
                 LocalDateTime.now(),
                 "lee",
                 LocalDateTime.now(),
-                "lee"
+                "lee",
+                0L
         );
     }
 

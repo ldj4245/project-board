@@ -399,7 +399,8 @@ class ArticleServiceTest {
                 LocalDateTime.now(),
                 "Lee",
                 LocalDateTime.now(),
-                "Lee");
+                "Lee",
+                0L);
     }
 
     private UserAccountDto createUserAccountDto() {

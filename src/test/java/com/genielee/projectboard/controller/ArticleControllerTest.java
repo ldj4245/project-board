@@ -343,7 +343,8 @@ class ArticleControllerTest {
                 LocalDateTime.now(),
                 "Lee",
                 LocalDateTime.now(),
-                "Lee"
+                "Lee",
+                0L
         );
     }
 
