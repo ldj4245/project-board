@@ -24,6 +24,146 @@
     </header>
 
     <main class="container">
+      <!-- 김치 프리미엄 위젯 -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body p-0">
+              <div
+                class="d-flex justify-content-between align-items-center p-3 border-bottom"
+              >
+                <h5 class="mb-0">🔥 실시간 김치 프리미엄</h5>
+                <div>
+                  <button
+                    class="btn btn-sm btn-outline-primary me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#coinSelectModal"
+                  >
+                    ⚙️ 시세표 설정
+                  </button>
+                  <a href="/crypto" class="btn btn-sm btn-primary">더보기 →</a>
+                </div>
+              </div>
+
+              <!-- 코인 선택 탭 -->
+              <div
+                class="coin-tabs p-2 border-bottom bg-light"
+                style="overflow-x: auto; white-space: nowrap"
+              >
+                <div id="coin-tabs-container"></div>
+              </div>
+
+              <!-- 시세표 -->
+              <div class="table-responsive">
+                <table class="table table-hover mb-0" id="premium-table">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 15%">거래소</th>
+                      <th style="width: 20%" class="text-end">
+                        실시간 시세(KRW)
+                      </th>
+                      <th style="width: 20%" class="text-end">
+                        실시간 시세(USD)
+                      </th>
+                      <th style="width: 15%" class="text-center">
+                        24시간 변동률
+                      </th>
+                      <th style="width: 15%" class="text-center">
+                        한국 프리미엄
+                      </th>
+                      <th style="width: 15%" class="text-end">거래량</th>
+                    </tr>
+                  </thead>
+                  <tbody id="premium-widget">
+                    <tr>
+                      <td colspan="6" class="text-center py-3">
+                        <div
+                          class="spinner-border spinner-border-sm text-primary"
+                          role="status"
+                        >
+                          <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2 text-muted">데이터 로딩 중...</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 코인 선택 모달 -->
+      <div class="modal fade" id="coinSelectModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">관심 코인 관리</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <!-- 코인 추가 섹션 -->
+              <div class="mb-4">
+                <h6 class="mb-2">새 코인 추가</h6>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="new-coin-input"
+                    placeholder="코인 심볼 입력 (예: ENA, PEPE, SHIB)"
+                    style="text-transform: uppercase"
+                  />
+                  <button
+                    class="btn btn-primary"
+                    type="button"
+                    id="add-coin-btn"
+                  >
+                    <span
+                      id="add-coin-spinner"
+                      class="spinner-border spinner-border-sm d-none"
+                      role="status"
+                    ></span>
+                    <span id="add-coin-text">추가</span>
+                  </button>
+                </div>
+                <small class="text-muted">
+                  💡 Upbit과 Binance에서 거래되는 코인만 추가 가능합니다
+                </small>
+                <div id="add-coin-message" class="mt-2"></div>
+              </div>
+
+              <hr />
+
+              <!-- 선택된 코인 목록 -->
+              <div>
+                <h6 class="mb-2">선택된 코인 (최대 6개)</h6>
+                <p class="text-muted small">코인을 클릭하여 선택/해제하세요</p>
+                <div id="coin-list" class="d-flex flex-wrap gap-2">
+                  <!-- 코인 목록이 여기에 동적으로 생성됩니다 -->
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                취소
+              </button>
+              <button type="button" class="btn btn-primary" id="save-coins">
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="card card-margin search-form">
           <div class="card-body p-0">
@@ -153,5 +293,460 @@
       integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
       crossorigin="anonymous"
     ></script>
+
+    <!-- 김치 프리미엄 위젯 JavaScript -->
+    <script>
+      // 사용 가능한 코인 목록 (기본 제공)
+      const DEFAULT_AVAILABLE_COINS = [
+        { symbol: "BTC", name: "비트코인" },
+        { symbol: "ETH", name: "이더리움" },
+        { symbol: "XRP", name: "리플" },
+        { symbol: "SOL", name: "솔라나" },
+        { symbol: "ADA", name: "에이다" },
+        { symbol: "DOGE", name: "도지코인" },
+        { symbol: "MATIC", name: "폴리곤" },
+        { symbol: "DOT", name: "폴카닷" },
+        { symbol: "AVAX", name: "아발란체" },
+        { symbol: "LINK", name: "체인링크" },
+      ];
+
+      // 사용자가 추가한 코인 목록 (LocalStorage에 저장)
+      function getAvailableCoins() {
+        const stored = localStorage.getItem("availableCoins");
+        return stored ? JSON.parse(stored) : DEFAULT_AVAILABLE_COINS;
+      }
+
+      function saveAvailableCoins(coins) {
+        localStorage.setItem("availableCoins", JSON.stringify(coins));
+      }
+
+      let AVAILABLE_COINS = getAvailableCoins();
+
+      // 기본 선택 코인 (최대 6개)
+      const DEFAULT_COINS = ["BTC", "ETH", "XRP", "SOL", "ADA"];
+
+      // 현재 선택된 코인
+      let currentCoin = "BTC";
+
+      // LocalStorage에서 선택된 코인 가져오기
+      function getSelectedCoins() {
+        const stored = localStorage.getItem("selectedCoins");
+        return stored ? JSON.parse(stored) : DEFAULT_COINS;
+      }
+
+      // 선택된 코인 저장
+      function saveSelectedCoins(coins) {
+        localStorage.setItem("selectedCoins", JSON.stringify(coins));
+      }
+
+      // 코인 탭 렌더링
+      function renderCoinTabs() {
+        const selectedCoins = getSelectedCoins();
+        const tabsContainer = document.getElementById("coin-tabs-container");
+
+        tabsContainer.innerHTML = selectedCoins
+          .map((coin) => {
+            const coinInfo = AVAILABLE_COINS.find((c) => c.symbol === coin);
+            const isActive = coin === currentCoin;
+            return `
+            <button 
+              class="btn btn-sm ${
+                isActive ? "btn-primary" : "btn-outline-primary"
+              } me-2 mb-1" 
+              onclick="selectCoin('${coin}')"
+              style="min-width: 80px;">
+              <strong>${coin}</strong>
+            </button>
+          `;
+          })
+          .join("");
+      }
+
+      // 코인 선택
+      window.selectCoin = function (coin) {
+        currentCoin = coin;
+        renderCoinTabs();
+        loadPremiumData();
+      };
+
+      // 김치 프리미엄 데이터 로드
+      async function loadPremiumData() {
+        try {
+          const response = await fetch(`/api/premium/${currentCoin}`);
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch");
+          }
+
+          const premium = await response.json();
+          const coinInfo = AVAILABLE_COINS.find(
+            (c) => c.symbol === currentCoin
+          );
+
+          const widget = document.getElementById("premium-widget");
+
+          // 국내 거래소들
+          const domesticExchanges = [
+            {
+              name: premium.domesticExchange,
+              priceKRW: premium.domesticPrice,
+              priceUSD: premium.domesticPrice / premium.exchangeRate,
+              premium: premium.premiumPercentage,
+              changePercent: premium.changePercent24h || 0,
+              volume: premium.volume24h || 0,
+            },
+          ];
+
+          // 해외 거래소들 (바이낸스도 변동률과 거래량 표시)
+          const internationalExchanges = [
+            {
+              name: premium.internationalExchange,
+              priceKRW: premium.internationalPriceInKrw,
+              priceUSD: premium.internationalPrice,
+              premium: 0,
+              changePercent: premium.internationalChangePercent24h || 0,
+              volume: premium.internationalVolume24h || 0,
+            },
+          ];
+
+          widget.innerHTML = [
+            ...domesticExchanges.map((ex) => {
+              const isPositive = ex.premium >= 0;
+              const premiumColor = isPositive ? "text-danger" : "text-primary";
+              const premiumSign = isPositive ? "+" : "";
+
+              // 변동률 색상 및 부호
+              const changePercent = ex.changePercent;
+              const changeIsPositive = changePercent >= 0;
+              const changeColor = changeIsPositive
+                ? "text-danger"
+                : "text-primary";
+              const changeSign = changeIsPositive ? "+" : "";
+
+              // 거래량 포맷 (원화 가치로 계산)
+              const volume = ex.volume || 0;
+              const volumeInKRW = volume * ex.priceKRW; // 코인 수량 * 가격 = 원화 가치
+              const volumeInBillion = (volumeInKRW / 100000000).toFixed(0); // 억 단위
+
+              return `
+                <tr>
+                  <td>
+                    <strong>${ex.name}</strong>
+                    <span class="badge bg-success ms-1">한국</span>
+                  </td>
+                  <td class="text-end">
+                    <strong>${ex.priceKRW.toLocaleString()}</strong> KRW
+                  </td>
+                  <td class="text-end text-muted">
+                    ${ex.priceUSD.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })} USD
+                  </td>
+                  <td class="text-center">
+                    <strong class="${changeColor}">${changeSign}${changePercent.toFixed(
+                2
+              )}%</strong>
+                  </td>
+                  <td class="text-center">
+                    <strong class="${premiumColor}">${premiumSign}${ex.premium.toFixed(
+                2
+              )}%</strong>
+                  </td>
+                  <td class="text-end">
+                    <span class="text-muted">${volumeInBillion}억</span>
+                  </td>
+                </tr>
+              `;
+            }),
+            ...internationalExchanges.map((ex) => {
+              // 바이낸스 변동률 및 거래량
+              const changePercent = ex.changePercent;
+              const hasChange = changePercent !== 0;
+              const changeIsPositive = changePercent >= 0;
+              const changeColor = changeIsPositive
+                ? "text-danger"
+                : "text-primary";
+              const changeSign = changeIsPositive ? "+" : "";
+
+              // 거래량 포맷 (원화 가치로 계산)
+              const volume = ex.volume || 0;
+              const volumeInKRW = volume * ex.priceUSD * premium.exchangeRate; // USD 거래량을 KRW로 환산
+              const volumeInBillion = (volumeInKRW / 100000000).toFixed(0); // 억 단위
+              const hasVolume = volume > 0;
+
+              return `
+                <tr class="table-light">
+                  <td>
+                    <strong>${ex.name}</strong>
+                    <span class="badge bg-primary ms-1">해외</span>
+                  </td>
+                  <td class="text-end text-muted">
+                    ${ex.priceKRW.toLocaleString(undefined, {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })} KRW
+                  </td>
+                  <td class="text-end">
+                    <strong>${ex.priceUSD.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}</strong> USD
+                  </td>
+                  <td class="text-center">
+                    ${
+                      hasChange
+                        ? `<strong class="${changeColor}">${changeSign}${changePercent.toFixed(
+                            2
+                          )}%</strong>`
+                        : '<span class="badge bg-secondary">-</span>'
+                    }
+                  </td>
+                  <td class="text-center text-muted">
+                    기준가
+                  </td>
+                  <td class="text-end text-muted">
+                    ${hasVolume ? `${volumeInBillion}억` : "-"}
+                  </td>
+                </tr>
+              `;
+            }),
+          ].join("");
+        } catch (error) {
+          console.error("Failed to load premium data:", error);
+          document.getElementById("premium-widget").innerHTML =
+            '<tr><td colspan="6" class="text-center py-3 text-danger">데이터를 불러올 수 없습니다</td></tr>';
+        }
+      }
+
+      // 코인 클릭 핸들러 (한 번만 정의)
+      function handleCoinListClick(e) {
+        const btn = e.target.closest(".coin-item");
+        const removeBtn = e.target.closest(".remove-coin-btn");
+
+        // 삭제 버튼 클릭
+        if (removeBtn) {
+          e.stopPropagation();
+          const symbol = removeBtn.dataset.symbol;
+          removeCoin(symbol);
+          return;
+        }
+
+        // 코인 선택 버튼 클릭
+        if (btn) {
+          const symbol = btn.dataset.symbol;
+          const currentSelected = getSelectedCoins();
+
+          if (currentSelected.includes(symbol)) {
+            // 이미 선택됨 -> 해제
+            const newSelected = currentSelected.filter((s) => s !== symbol);
+            if (newSelected.length === 0) {
+              alert("최소 1개의 코인을 선택해야 합니다.");
+              return;
+            }
+            // LocalStorage 즉시 업데이트
+            saveSelectedCoins(newSelected);
+            btn.classList.remove("btn-primary");
+            btn.classList.add("btn-outline-secondary");
+          } else {
+            // 선택되지 않음 -> 선택
+            if (currentSelected.length >= 6) {
+              alert("최대 6개까지만 선택할 수 있습니다.");
+              return;
+            }
+            // LocalStorage 즉시 업데이트
+            const newSelected = [...currentSelected, symbol];
+            saveSelectedCoins(newSelected);
+            btn.classList.remove("btn-outline-secondary");
+            btn.classList.add("btn-primary");
+          }
+        }
+      }
+
+      // 코인 선택 모달 초기화
+      function initCoinSelectModal() {
+        // 항상 최신 데이터 로드
+        AVAILABLE_COINS = getAvailableCoins();
+        const selectedCoins = getSelectedCoins();
+        const coinList = document.getElementById("coin-list");
+
+        // 코인 버튼 스타일로 표시
+        coinList.innerHTML = AVAILABLE_COINS.map((coin) => {
+          const isSelected = selectedCoins.includes(coin.symbol);
+          const isUserAdded = !DEFAULT_AVAILABLE_COINS.find(
+            (c) => c.symbol === coin.symbol
+          );
+          return `
+            <div class="d-inline-block position-relative mb-2 me-2">
+              <button 
+                class="btn ${
+                  isSelected ? "btn-primary" : "btn-outline-secondary"
+                } coin-item" 
+                data-symbol="${coin.symbol}">
+                <strong>${coin.symbol}</strong>
+                ${
+                  coin.name
+                    ? `<small class="text-muted ms-1">${coin.name}</small>`
+                    : ""
+                }
+              </button>
+              ${
+                isUserAdded
+                  ? `<button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle remove-coin-btn" 
+                        data-symbol="${coin.symbol}"
+                        style="width: 20px; height: 20px; padding: 0; line-height: 1; font-size: 12px; transform: translate(50%, -50%);"
+                        title="삭제">×</button>`
+                  : ""
+              }
+            </div>
+          `;
+        }).join("");
+
+        // 기존 이벤트 리스너 제거 후 재등록
+        coinList.removeEventListener("click", handleCoinListClick);
+        coinList.addEventListener("click", handleCoinListClick);
+      }
+
+      // 코인 삭제 (사용자가 추가한 코인만)
+      function removeCoin(symbol) {
+        if (confirm(`${symbol} 코인을 목록에서 삭제하시겠습니까?`)) {
+          // availableCoins에서 제거
+          AVAILABLE_COINS = AVAILABLE_COINS.filter((c) => c.symbol !== symbol);
+          saveAvailableCoins(AVAILABLE_COINS);
+
+          // 선택된 코인에서도 제거
+          const selectedCoins = getSelectedCoins();
+          const newSelected = selectedCoins.filter((s) => s !== symbol);
+          saveSelectedCoins(newSelected);
+
+          // 현재 표시 중인 코인이면 다른 코인으로 변경
+          if (currentCoin === symbol && newSelected.length > 0) {
+            currentCoin = newSelected[0];
+            renderCoinTabs();
+            loadPremiumData();
+          }
+
+          // 모달 재렌더링
+          initCoinSelectModal();
+        }
+      }
+
+      // 새 코인 추가
+      document
+        .getElementById("add-coin-btn")
+        .addEventListener("click", async function () {
+          const input = document.getElementById("new-coin-input");
+          const symbol = input.value.trim().toUpperCase();
+          const messageDiv = document.getElementById("add-coin-message");
+          const spinner = document.getElementById("add-coin-spinner");
+          const btnText = document.getElementById("add-coin-text");
+
+          if (!symbol) {
+            messageDiv.innerHTML =
+              '<div class="alert alert-warning py-2">코인 심볼을 입력해주세요.</div>';
+            return;
+          }
+
+          // 이미 존재하는지 확인
+          if (AVAILABLE_COINS.find((c) => c.symbol === symbol)) {
+            messageDiv.innerHTML =
+              '<div class="alert alert-info py-2">이미 목록에 있는 코인입니다.</div>';
+            return;
+          }
+
+          // 로딩 시작
+          spinner.classList.remove("d-none");
+          btnText.textContent = "확인 중...";
+          this.disabled = true;
+          messageDiv.innerHTML = "";
+
+          try {
+            // 코인 유효성 검증
+            const response = await fetch(`/api/premium/validate/${symbol}`);
+            const isValid = await response.json();
+
+            if (isValid) {
+              // 유효한 코인 -> 추가
+              AVAILABLE_COINS.push({ symbol, name: "" });
+              saveAvailableCoins(AVAILABLE_COINS);
+
+              messageDiv.innerHTML = `<div class="alert alert-success py-2">✅ ${symbol} 코인이 추가되었습니다!</div>`;
+              input.value = "";
+
+              // 모달 재렌더링
+              initCoinSelectModal();
+
+              setTimeout(() => {
+                messageDiv.innerHTML = "";
+              }, 3000);
+            } else {
+              messageDiv.innerHTML = `<div class="alert alert-danger py-2">❌ ${symbol} 코인을 찾을 수 없습니다. Upbit과 Binance 모두에서 거래되는 코인만 추가 가능합니다.</div>`;
+            }
+          } catch (error) {
+            console.error("Error validating coin:", error);
+            messageDiv.innerHTML =
+              '<div class="alert alert-danger py-2">❌ 코인 확인 중 오류가 발생했습니다.</div>';
+          } finally {
+            // 로딩 종료
+            spinner.classList.add("d-none");
+            btnText.textContent = "추가";
+            this.disabled = false;
+          }
+        });
+
+      // Enter 키로도 추가 가능
+      document
+        .getElementById("new-coin-input")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            document.getElementById("add-coin-btn").click();
+          }
+        });
+
+      // 저장 버튼 클릭
+      document
+        .getElementById("save-coins")
+        .addEventListener("click", function () {
+          const coinButtons = document.querySelectorAll(
+            "#coin-list .coin-item"
+          );
+          const selectedCoins = Array.from(coinButtons)
+            .filter((btn) => btn.classList.contains("btn-primary"))
+            .map((btn) => btn.dataset.symbol);
+
+          if (selectedCoins.length === 0) {
+            alert("최소 1개의 코인을 선택해주세요.");
+            return;
+          }
+
+          saveSelectedCoins(selectedCoins);
+
+          // 현재 선택된 코인이 새로운 목록에 없으면 첫 번째 코인으로 변경
+          if (!selectedCoins.includes(currentCoin)) {
+            currentCoin = selectedCoins[0];
+          }
+
+          renderCoinTabs();
+          loadPremiumData();
+
+          // 모달 닫기
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("coinSelectModal")
+          );
+          modal.hide();
+        });
+
+      // 모달이 열릴 때마다 초기화
+      document
+        .getElementById("coinSelectModal")
+        .addEventListener("show.bs.modal", initCoinSelectModal);
+
+      // 페이지 로드 시 실행
+      renderCoinTabs();
+      loadPremiumData();
+
+      // 30초마다 업데이트
+      setInterval(loadPremiumData, 30000);
+    </script>
   </body>
 </html>
