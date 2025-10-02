@@ -1,5 +1,6 @@
 package com.genielee.projectboard.domain;
 
+import com.genielee.projectboard.domain.constant.BoardCategory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,14 @@ import java.util.Set;
 @Table(indexes = {
         @Index(columnList="title"),
         @Index(columnList = "createdBy"),
-        @Index(columnList = "createdAt")
+        @Index(columnList = "createdAt"),
+        @Index(columnList = "category"),
+        @Index(columnList = "coinSymbol"),
+        @Index(columnList = "isPinned"),
+        @Index(columnList = "isHot"),
+        @Index(columnList = "viewCount"),
+        @Index(columnList = "category, createdAt"),
+        @Index(columnList = "coinSymbol, createdAt")
 })
 @Entity
 public class Article extends AuditingFields {
@@ -34,6 +42,24 @@ public class Article extends AuditingFields {
     @Setter @Column(nullable = false, length = 10000) private String content; //내용
 
     @Setter @Getter(AccessLevel.NONE) @Column(columnDefinition = "BIGINT DEFAULT 0") private Long viewCount = 0L; // 조회수
+
+    // 코인판 스타일 확장 필드들
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, columnDefinition = "varchar(20) default 'GENERAL'")
+    private BoardCategory category = BoardCategory.GENERAL; // 게시판 카테고리
+
+    @Setter
+    @Column(length = 20)
+    private String coinSymbol; // 관련 코인 심볼 (BTC, ETH 등)
+
+    @Setter
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean isPinned = false; // 공지글 여부
+
+    @Setter
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean isHot = false; // 인기글 여부 (조회수/댓글 기준)
 
     @ToString.Exclude
     @JoinTable(

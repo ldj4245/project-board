@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="코인 정보와 커뮤니티를 제공하는 암호화폐 플랫폼"
+    />
+    <meta name="author" content="Crypto Board" />
+    <title>크립토 보드 - 코인 커뮤니티</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 코인판 스타일 CSS -->
+    <style>
+      :root {
+        --primary-color: #1e40af;
+        --success-color: #059669;
+        --danger-color: #dc2626;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* 상단 실시간 시세 티커 */
+      .price-ticker {
+        background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+        color: white;
+        padding: 8px 0;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .ticker-scroll {
+        display: inline-block;
+        animation: scroll-left 30s linear infinite;
+      }
+
+      @keyframes scroll-left {
+        0% {
+          transform: translate3d(100%, 0, 0);
+        }
+        100% {
+          transform: translate3d(-100%, 0, 0);
+        }
+      }
+
+      /* 메인 네비게이션 */
+      .main-nav {
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 0;
+      }
+
+      .nav-categories {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .nav-category {
+        text-decoration: none;
+        color: var(--text-primary);
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.2s;
+      }
+
+      .nav-category:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+      }
+
+      /* 메인 레이아웃 */
+      .main-layout {
+        display: grid;
+        grid-template-columns: 250px 1fr 300px;
+        gap: 20px;
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+
+      @media (max-width: 1200px) {
+        .main-layout {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+
+      /* 카드 스타일 */
+      .crypto-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .crypto-card h3 {
+        margin-bottom: 16px;
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      /* 게시글 카드 */
+      .post-card {
+        border-bottom: 1px solid var(--border-color);
+        padding: 12px 0;
+      }
+
+      .post-card:last-child {
+        border-bottom: none;
+      }
+
+      .post-title {
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 6px;
+      }
+
+      .post-title a {
+        text-decoration: none;
+        color: var(--text-primary);
+      }
+
+      .post-title a:hover {
+        color: var(--primary-color);
+      }
+
+      .post-meta {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        display: flex;
+        gap: 12px;
+      }
+
+      .category-badge {
+        background: var(--primary-color);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+
+      /* 실시간 시세 위젯 */
+      .price-widget {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+      }
+
+      .price-item {
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        background: #f8f9fa;
+      }
+
+      .price-symbol {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .price-value {
+        font-size: 0.8rem;
+        margin: 4px 0;
+      }
+
+      .price-change {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .price-up {
+        color: var(--success-color);
+      }
+      .price-down {
+        color: var(--danger-color);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 상단 실시간 시세 티커 -->
+    <div class="price-ticker">
+      <div class="container">
+        <div class="ticker-scroll" id="price-ticker">
+          <span>🔥 실시간 시세</span>
+          <span id="ticker-content">로딩 중...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 헤더 삽입 -->
+    <header id="header">
+      <div th:replace="~{header :: header}">헤더</div>
+      <hr />
+    </header>
+
+    <!-- 메인 네비게이션 -->
+    <nav class="main-nav">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">💰 코인판</h2>
+          <a href="/articles" class="btn btn-outline-primary">← 일반 게시판</a>
+        </div>
+        <div class="nav-categories">
+          <a href="/boards/coin_info" class="nav-category">💰 코인정보</a>
+          <a href="/boards/chart_analysis" class="nav-category">📊 차트분석</a>
+          <a href="/boards/coin_news" class="nav-category">📰 코인뉴스</a>
+          <a href="/boards/mining" class="nav-category">⛏️ 채굴정보</a>
+          <a href="/boards/airdrop" class="nav-category">🎁 에어드랍</a>
+          <a href="/boards/nft_p2e" class="nav-category">🎮 NFT/P2E</a>
+          <a href="/boards/free_board" class="nav-category">💭 자유게시판</a>
+          <a href="/boards/realtime" class="nav-category">🔥 실시간</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 메인 레이아웃 -->
+    <div class="main-layout">
+      <!-- 왼쪽 사이드바: 게시판 목록 -->
+      <aside class="left-sidebar">
+        <div class="crypto-card">
+          <h3>🔥 인기 게시판</h3>
+          <div class="board-list">
+            <div th:each="category : ${boardCategories}" class="board-item">
+              <a
+                th:href="@{'/boards/' + ${category.name().toLowerCase()}}"
+                th:text="${category.displayNameWithEmoji}"
+                class="text-decoration-none"
+              ></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="crypto-card">
+          <h3>💎 주요 코인</h3>
+          <div class="coin-list" id="major-coins">
+            <div class="text-center text-muted">
+              <small>로딩 중...</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 중앙 메인 피드 -->
+      <main class="main-feed">
+        <!-- 인기글 섹션 -->
+        <section class="crypto-card">
+          <h3>🔥 실시간 인기글 <small class="text-muted" style="font-size: 0.8rem;">(조회수 기준)</small></h3>
+          <div class="post-list">
+            <div
+              th:if="${hotArticles != null and !hotArticles.isEmpty()}"
+            >
+              <div
+                th:each="article : ${hotArticles}"
+                class="post-card"
+              >
+                <div class="post-title">
+                  <a
+                    th:href="@{'/articles/' + ${article.id}}"
+                    th:text="${article.title}"
+                    >제목</a
+                  >
+                </div>
+                <div class="post-meta">
+                  <span th:text="${article.nickname}">작성자</span>
+                  <span
+                    th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}"
+                    >날짜</span
+                  >
+                  <span
+                    ><i class="fas fa-eye"></i>
+                    <span th:text="${article.viewCount ?: 0}">0</span></span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              th:if="${hotArticles == null or hotArticles.isEmpty()}"
+              class="text-center text-muted"
+            >
+              <p>게시글이 없습니다.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 최신글 섹션 -->
+        <section class="crypto-card">
+          <h3>📝 최신글</h3>
+          <div class="post-list">
+            <div
+              th:if="${latestArticles != null and !latestArticles.isEmpty()}"
+            >
+              <div th:each="article : ${latestArticles}" class="post-card">
+                <div class="post-title">
+                  <a
+                    th:href="@{'/articles/' + ${article.id}}"
+                    th:text="${article.title}"
+                    >제목</a
+                  >
+                </div>
+                <div class="post-meta">
+                  <span th:text="${article.nickname}">작성자</span>
+                  <span
+                    th:text="${#temporals.format(article.createdAt, 'yyyy-MM-dd HH:mm')}"
+                    >날짜</span
+                  >
+                  <span
+                    ><i class="fas fa-eye"></i>
+                    <span th:text="${article.viewCount ?: 0}">0</span></span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              th:if="${latestArticles == null or latestArticles.isEmpty()}"
+              class="text-center text-muted"
+            >
+              <p>게시글이 없습니다.</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- 오른쪽 사이드바: 실시간 정보 -->
+      <aside class="right-sidebar">
+        <!-- 실시간 시세 위젯 -->
+        <div class="crypto-card">
+          <h3>📈 실시간 시세</h3>
+          <div class="price-widget" id="live-prices">
+            <!-- WebSocket으로 동적 업데이트 -->
+          </div>
+        </div>
+
+        <!-- 김치프리미엄 위젯 -->
+        <div class="crypto-card">
+          <h3>🌶️ 김치프리미엄</h3>
+          <div id="kimchi-premium">
+            <!-- JavaScript로 동적 로드 -->
+            <div class="text-center">
+              <small class="text-muted">Loading...</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- 실시간 댓글 -->
+        <div class="crypto-card">
+          <h3>💬 실시간 댓글</h3>
+          <div id="live-comments">
+            <div th:if="${latestComments != null and !latestComments.isEmpty()}">
+              <div 
+                th:each="comment : ${latestComments}" 
+                class="comment-item"
+                style="border-bottom: 1px solid #e5e7eb; padding: 8px 0;">
+                <div class="comment-text" style="font-size: 0.85rem; margin-bottom: 4px;" th:text="${comment.content}">댓글 내용</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div class="comment-author" style="font-size: 0.75rem; color: #6b7280;">
+                    <span th:text="${comment.userAccountDto.nickname ?: comment.userAccountDto.userId}">작성자</span>
+                  </div>
+                  <a 
+                    th:href="@{'/articles/' + ${comment.articleId}}" 
+                    class="text-decoration-none"
+                    style="font-size: 0.7rem; color: #3b82f6;">
+                    게시글 보기 →
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div 
+              th:if="${latestComments == null or latestComments.isEmpty()}"
+              class="text-center text-muted">
+              <small>댓글이 없습니다</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 푸터 -->
+    <footer id="footer">
+      <hr />
+      <div th:replace="~{footer :: footer}">푸터</div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let stompClient = null;
+
+        // WebSocket 연결 초기화
+        function connectWebSocket() {
+          const socket = new SockJS("/ws");
+          stompClient = Stomp.over(socket);
+
+          stompClient.connect(
+            {},
+            function (frame) {
+              console.log("Connected to crypto WebSocket");
+
+              // 주요 코인 시세 구독
+              stompClient.send(
+                "/app/subscribe-major-coins",
+                {},
+                JSON.stringify({})
+              );
+
+              // 실시간 가격 업데이트 구독
+              stompClient.subscribe("/topic/prices/all", function (message) {
+                const priceData = JSON.parse(message.body);
+                updatePriceDisplay(priceData);
+                updateTicker(priceData);
+              });
+            },
+            function (error) {
+              console.error("WebSocket connection error:", error);
+              setTimeout(connectWebSocket, 5000); // 5초 후 재연결 시도
+            }
+          );
+        }
+
+        // 가격 표시 업데이트
+        function updatePriceDisplay(priceData) {
+          const livePricesContainer = document.getElementById("live-prices");
+
+          // coinSymbol이 없으면 symbol 사용
+          const symbol = priceData.coinSymbol || priceData.symbol || 'Unknown';
+          const exchange = priceData.exchangeName || priceData.exchange || 'Unknown';
+          const price = priceData.price || priceData.lastPrice || 0;
+          const changePercent = priceData.changePercent || priceData.priceChangePercent || 0;
+
+          // 기존 아이템 찾기 또는 새로 생성
+          let priceItem = document.querySelector(
+            `[data-symbol="${symbol}"][data-exchange="${exchange}"]`
+          );
+
+          if (!priceItem) {
+            priceItem = document.createElement("div");
+            priceItem.className = "price-item";
+            priceItem.dataset.symbol = symbol;
+            priceItem.dataset.exchange = exchange;
+            livePricesContainer.appendChild(priceItem);
+          }
+
+          const changeClass = priceData.isUp || changePercent > 0
+            ? "price-up"
+            : priceData.isDown || changePercent < 0
+            ? "price-down"
+            : "";
+          const changeSign = (priceData.isUp || changePercent > 0) ? "+" : "";
+
+          priceItem.innerHTML = `
+                    <div class="price-symbol">${symbol}</div>
+                    <div class="price-value">₩${parseFloat(price).toLocaleString()}</div>
+                    <div class="price-change ${changeClass}">${changeSign}${parseFloat(changePercent).toFixed(2)}%</div>
+                    <div class="exchange-name" style="font-size: 0.7rem; color: #6b7280;">${exchange}</div>
+                `;
+        }
+
+        // 상단 티커 업데이트
+        function updateTicker(priceData) {
+          const tickerContent = document.getElementById("ticker-content");
+          // 실시간으로 티커 내용 업데이트 로직 구현
+        }
+
+        // 초기 WebSocket 연결
+        connectWebSocket();
+
+        // 김치 프리미엄 로드
+        loadKimchiPremium();
+
+        // 주요 코인 로드
+        loadMajorCoins();
+
+        // 티커 초기 로드
+        loadTickerData();
+      });
+
+      // 주요 코인 데이터 로드
+      async function loadMajorCoins() {
+        try {
+          const coins = ["BTC", "ETH"];
+          const promises = coins.map((coin) =>
+            fetch(`/api/premium/${coin}`).then((r) => r.json())
+          );
+
+          const results = await Promise.all(promises);
+          const container = document.getElementById("major-coins");
+
+          container.innerHTML = results
+            .map((premium) => {
+              const changePercent = premium.premiumPercentage || 0;
+              const isPositive = changePercent >= 0;
+              const color = isPositive ? "price-up" : "price-down";
+              const sign = isPositive ? "+" : "";
+
+              return `
+                        <div class="price-item">
+                            <div class="price-symbol">${
+                              premium.coinSymbol
+                            }</div>
+                            <div class="price-value">₩${premium.domesticPrice.toLocaleString()}</div>
+                            <div class="price-change ${color}">${sign}${changePercent.toFixed(
+                2
+              )}%</div>
+                        </div>
+                    `;
+            })
+            .join("");
+        } catch (error) {
+          console.error("Failed to load major coins:", error);
+        }
+      }
+
+      // 티커 데이터 로드
+      async function loadTickerData() {
+        try {
+          const response = await fetch("/api/premium/top");
+          const premiums = await response.json();
+
+          const tickerContent = premiums
+            .map((premium) => {
+              const sign = premium.premiumPercentage >= 0 ? "+" : "";
+              return `${
+                premium.coinSymbol
+              } ₩${premium.domesticPrice.toLocaleString()} (${sign}${premium.premiumPercentage.toFixed(
+                2
+              )}%)`;
+            })
+            .join(" | ");
+
+          document.getElementById("ticker-content").textContent = tickerContent;
+        } catch (error) {
+          console.error("Failed to load ticker data:", error);
+        }
+      }
+
+      // 김치 프리미엄 데이터 로드
+      async function loadKimchiPremium() {
+        try {
+          const response = await fetch("/api/premium/top");
+          const premiums = await response.json();
+
+          const container = document.getElementById("kimchi-premium");
+          container.innerHTML = premiums
+            .map((premium) => {
+              const isPositive = premium.premiumPercentage >= 0;
+              const color = isPositive ? "price-up" : "price-down";
+              const sign = isPositive ? "+" : "";
+
+              return `
+                        <div class="price-item mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">${
+                                  premium.coinSymbol
+                                }</span>
+                                <span class="${color} fw-bold">${sign}${premium.premiumPercentage.toFixed(
+                2
+              )}%</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                                <span>국내: ₩${premium.domesticPrice.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `;
+            })
+            .join("");
+        } catch (error) {
+          console.error("Failed to load kimchi premium:", error);
+          document.getElementById("kimchi-premium").innerHTML =
+            '<small class="text-muted">데이터를 불러올 수 없습니다</small>';
+        }
+      }
+
+      // 30초마다 김치 프리미엄 업데이트
+      setInterval(loadKimchiPremium, 30000);
+      setInterval(loadMajorCoins, 30000);
+      setInterval(loadTickerData, 30000);
+    </script>
+  </body>
+</html>

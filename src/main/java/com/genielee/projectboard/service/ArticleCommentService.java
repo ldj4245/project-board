@@ -35,6 +35,16 @@ public class ArticleCommentService {
                 .toList();
 
     }
+    
+    //최신 댓글 10개 조회
+    @Transactional(readOnly = true)
+    public List<ArticleCommentDto> getLatestComments() {
+        return articleCommentRepository.findTop10ByOrderByCreatedAtDesc()
+                .stream()
+                .map(ArticleCommentDto::from)
+                .toList();
+    }
+    
     //댓글 저장시 게시물이 존재하는지 여부, 유저 정보 같이 저장. dto 에 들어있어야 함
     public void saveArticleComment(ArticleCommentDto dto){
         try{
