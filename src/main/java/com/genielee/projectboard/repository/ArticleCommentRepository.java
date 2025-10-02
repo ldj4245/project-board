@@ -22,6 +22,9 @@ public interface ArticleCommentRepository extends
 
     List<ArticleComment> findByArticle_Id(Long articleId);
     void deleteByIdAndUserAccount_UserId(Long articleCommentId, String userId);
+    
+    // 최신 댓글 조회 (생성일 기준 내림차순)
+    List<ArticleComment> findTop10ByOrderByCreatedAtDesc();
 
     @Override
     default void customize(QuerydslBindings bindings, QArticleComment root){
