@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/", "/articles", "/articles/search-hashtag").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/crypto", "/boards/**", "/coins/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(withDefaults())
