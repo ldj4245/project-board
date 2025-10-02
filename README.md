@@ -103,9 +103,9 @@ Spring Boot, JPA, QueryDSL, Thymeleaf, Spring Security 등을 활용하여 제�
 
 ### ERD (Entity-Relationship Diagram)
 
-![ERD](doucment/project-board-erd.svg)
+> 📋 **ERD 다이어그램**: [상세 ERD 보기](doucment/project-board-erd.md)
 
-> 📋 **최신 ERD**: [상세 ERD 보기](doucment/project-board-erd.md) (Mermaid 다이어그램 포함)
+GitHub에서 Mermaid 다이어그램을 자동으로 렌더링합니다.
 
 **주요 엔티티:**
 
@@ -122,9 +122,9 @@ Spring Boot, JPA, QueryDSL, Thymeleaf, Spring Security 등을 활용하여 제�
 
 ### Use-Case Diagram
 
-![Use-Case](doucment/use-case.svg)
+> 📋 **Use-Case 다이어그램**: [상세 Use-Case 보기](doucment/use-case.md)
 
-> 📋 **최신 Use-Case**: [상세 Use-Case 보기](doucment/use-case.md) (Mermaid 다이어그램 포함)
+GitHub에서 Mermaid 다이어그램을 자동으로 렌더링합니다.
 
 ---
 
